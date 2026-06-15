@@ -4304,7 +4304,35 @@ static const struct wlr_drm_format_set *renderer_get_texture_formats( struct wlr
 
 static int renderer_get_drm_fd( struct wlr_renderer *wlr_renderer )
 {
-	return g_device.drmRenderFd();
+	int nDrmFd = g_device.drmRenderFd();
+	if ( nDrmFd >= 0 )
+		return nDrmFd;
+
+	// KGSL Turnip on Android does not expose VK_EXT_physical_device_drm,
+	// so gamescope has no Vulkan-derived DRM render fd. wlroots uses this fd
+	// only to decide whether it can advertise protocols such as linux-dmabuf
+	// to nested clients. Allow Android/Termux experiments to provide a DRM fd
+	// as protocol identity/feedback while actual rendering still uses the
+	// selected Vulkan device.
+	static int s_nFallbackDrmFd = -2;
+	if ( s_nFallbackDrmFd == -2 )
+	{
+		const char *pszFallback = std::getenv( "GAMESCOPE_WLR_FALLBACK_DRM_FD" );
+		if ( pszFallback && *pszFallback )
+		{
+			s_nFallbackDrmFd = open( pszFallback, O_RDWR | O_CLOEXEC );
+			if ( s_nFallbackDrmFd < 0 )
+				vk_log.errorf_errno( "Failed to open fallback wlroots DRM fd '%s'", pszFallback );
+			else
+				vk_log.infof( "Using fallback wlroots DRM fd '%s' for linux-dmabuf advertisement", pszFallback );
+		}
+		else
+		{
+			s_nFallbackDrmFd = -1;
+		}
+	}
+
+	return s_nFallbackDrmFd;
 }
 
 static struct wlr_texture *renderer_texture_from_buffer( struct wlr_renderer *wlr_renderer, struct wlr_buffer *buf )
