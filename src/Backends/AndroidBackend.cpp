@@ -644,6 +644,7 @@ namespace gamescope
 
         bool SupportsPlaneHardwareCursor() const override { return false; }
         bool SupportsTearing() const override { return false; }
+        bool WantsContinuousRepaint() const override { return true; }
         bool UsesVulkanSwapchain() const override { return false; }
         bool IsSessionBased() const override { return false; }
         bool SupportsExplicitSync() const override { return true; }

@@ -8953,6 +8953,9 @@ steamcompmgr_main(int argc, char **argv)
 		if ( is_fading_out() )
 			hasRepaint = true;
 
+		if ( vblank && GetBackend()->WantsContinuousRepaint() )
+			hasRepaint = true;
+
 		bool bPainted = false;
 
 		static int nIgnoredOverlayRepaints = 0;

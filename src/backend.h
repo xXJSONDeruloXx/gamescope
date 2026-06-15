@@ -402,6 +402,11 @@ namespace gamescope
 
         virtual bool ShouldFitWindows() = 0;
 
+        // Backends without a native display-server repaint source may need
+        // gamescope to composite on every timer vblank so external consumers
+        // (for example an Android SurfaceControl bridge) keep receiving frames.
+        virtual bool WantsContinuousRepaint() const { return false; }
+
         virtual void OnEndFrame() = 0;
 
         static IBackend *Get();
