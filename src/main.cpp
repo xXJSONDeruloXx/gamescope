@@ -437,6 +437,8 @@ static enum gamescope::GamescopeBackend parse_backend_name(const char *str)
 #endif
 	} else if (strcmp(str, "headless") == 0) {
 		return gamescope::GamescopeBackend::Headless;
+	} else if (strcmp(str, "android") == 0) {
+		return gamescope::GamescopeBackend::Android;
 	} else if (strcmp(str, "wayland") == 0) {
 		return gamescope::GamescopeBackend::Wayland;
 	} else {
@@ -970,6 +972,10 @@ int main(int argc, char **argv)
 #endif
 		case gamescope::GamescopeBackend::Headless:
 			gamescope::IBackend::Set<gamescope::CHeadlessBackend>();
+			break;
+
+		case gamescope::GamescopeBackend::Android:
+			gamescope::IBackend::Set<gamescope::CAndroidBackend>();
 			break;
 
 		case gamescope::GamescopeBackend::Wayland:
